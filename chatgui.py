@@ -4,6 +4,9 @@ lemmatizer = WordNetLemmatizer()
 import pickle
 import numpy as np
 
+from recomendarPelicula import recomendar
+from recomendarPelicula import get_index_from_title,get_title_from_index
+
 from keras.models import load_model
 model = load_model('chatbot_model.h5')
 import json
@@ -47,28 +50,44 @@ def predict_class(sentence, model):
         return_list.append({"intent": classes[r[0]], "probability": str(r[1])})
     return return_list
 
-def getResponse(ints, intents_json):
+def getResponse(ints, intents_json,msg):
+    pelis = []
     tag = ints[0]['intent']
     list_of_intents = intents_json['intents']
     for i in list_of_intents:
+        if (i['tag']== 'recibirpelicula'):
+            pelicula = msg.replace("Me gusta la pelicula de ","")
+            print(pelicula)
+            resp = recomendar(pelicula)
+            j=0
+            for element in resp:
+                print (get_title_from_index(element[0]))
+                result = get_title_from_index(element[0])
+                pelis.append(result)
+                j=j+1
+                if j>10:
+                    return pelis
         if(i['tag']== tag):
             result = random.choice(i['responses'])
-            break
-    return result
+            return result
+
+    
 
 def chatbot_response(msg):
     ints = predict_class(msg, model)
-    print(ints)
-    print("")
-    res = getResponse(ints, intents)
-    print(res)
+    predict = float (ints[0]['probability'])
+    print(ints[0])
+    if(predict > 0.80):
+        res = getResponse(ints, intents,msg)
+        print(res)#Respuesta
+    else:
+        res = random.choice(["Disculpa no puedo entenderte", "Porfavor dame mas información", "No entendi perdon","Disculpa no entendi","Puedes explicarme mejor"])
     return res
 
-
+#Me gusta la pelicula de spiderman
 #Creating GUI with tkinter
 import tkinter
 from tkinter import *
-
 
 def send():
     msg = EntryBox.get("1.0",'end-1c').strip()
@@ -76,18 +95,23 @@ def send():
 
     if msg != '':
         ChatLog.config(state=NORMAL)
-        ChatLog.insert(END, "You: " + msg + '\n\n')
+        ChatLog.insert(END, "Yo: " + msg + '\n\n')
         ChatLog.config(foreground="#442265", font=("Verdana", 12 ))
-
         res = chatbot_response(msg)
-        ChatLog.insert(END, "Bot: " + res + '\n\n')
-
+        print(type(res))
+        if (isinstance(res, list)):
+            for i in res:
+                ChatLog.insert(END, "Arti: " + i + '\n\n')
+        else:
+            ChatLog.insert(END, "Arti: " + res + '\n\n')
         ChatLog.config(state=DISABLED)
         ChatLog.yview(END)
+    if msg == 'Quit':
+        base.destroy()
 
 
 base = Tk()
-base.title("Chatbot Peli")
+base.title("Arti Chatbot")
 base.geometry("400x500")
 base.resizable(width=FALSE, height=FALSE)
 
@@ -117,3 +141,9 @@ EntryBox.place(x=128, y=401, height=90, width=265)
 SendButton.place(x=6, y=401, height=90)
 
 base.mainloop()
+
+
+
+
+
+
