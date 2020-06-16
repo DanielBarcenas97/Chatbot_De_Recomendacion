@@ -1,4 +1,3 @@
-
 import nltk
 from nltk.stem import WordNetLemmatizer
 lemmatizer = WordNetLemmatizer()
@@ -59,7 +58,10 @@ def getResponse(ints, intents_json):
 
 def chatbot_response(msg):
     ints = predict_class(msg, model)
+    print(ints)
+    print("")
     res = getResponse(ints, intents)
+    print(res)
     return res
 
 
