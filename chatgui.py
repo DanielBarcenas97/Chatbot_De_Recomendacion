@@ -64,7 +64,7 @@ def getResponse(ints, intents_json,msg):
     list_of_intents = intents_json['intents']
     for i in list_of_intents:
         if (i['tag']== 'recibirpelicula'):
-            pelicula = msg.replace("Me gusta la pelicula de ","")
+            pelicula = msg.replace("me gusta la película de ","")
             print(pelicula)
             resp = recomendar(pelicula)
             j=0
@@ -139,11 +139,14 @@ def sendtalk():
         print(type(res))
         if (isinstance(res, list)):
             for i in res:
+                NOMBRE_ARCHIVO = "voz.mp3"
                 ChatLog.insert(END, "Arti: " + i + '\n\n')
+                tts(res,"ES", NOMBRE_ARCHIVO)
+                playsound(NOMBRE_ARCHIVO)
         else:
+            ChatLog.insert(END, "Arti: " + res + '\n\n')
             NOMBRE_ARCHIVO = "voz.mp3"
             tts(res,"ES", NOMBRE_ARCHIVO)
-            ChatLog.insert(END, "Arti: " + res + '\n\n')
             playsound(NOMBRE_ARCHIVO)
         ChatLog.config(state=DISABLED)
         ChatLog.yview(END)
