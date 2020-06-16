@@ -19,7 +19,7 @@
          "responses": ["Estoy Feliz de ayudarte", "Fue un Gusto", "De nada","Me gusta ayudar"],
          "context": [""]
         },
-        {"tag": "Arti",
+        {"tag": "Artí",
          "patterns": ["Arti"],
          "responses": ["Arti ese soy yo", "Aqui estoy como te puedo ayudar", "Dime estoy para ayudarte","Soy en mejor recomendando peliculas"],
          "context": [""]

@@ -132,6 +132,7 @@ def sendtalk():
     EntryBox.delete("0.0",END)
 
     if msg != '':
+        NOMBRE_ARCHIVO = "voz.mp3"
         ChatLog.config(state=NORMAL)
         ChatLog.insert(END, "Yo: " + msg + '\n\n')
         ChatLog.config(foreground="#442265", font=("Verdana", 12 ))
@@ -139,13 +140,11 @@ def sendtalk():
         print(type(res))
         if (isinstance(res, list)):
             for i in res:
-                NOMBRE_ARCHIVO = "voz.mp3"
                 ChatLog.insert(END, "Arti: " + i + '\n\n')
-                tts(res,"ES", NOMBRE_ARCHIVO)
+                tts(i,"ES", NOMBRE_ARCHIVO)
                 playsound(NOMBRE_ARCHIVO)
         else:
             ChatLog.insert(END, "Arti: " + res + '\n\n')
-            NOMBRE_ARCHIVO = "voz.mp3"
             tts(res,"ES", NOMBRE_ARCHIVO)
             playsound(NOMBRE_ARCHIVO)
         ChatLog.config(state=DISABLED)
