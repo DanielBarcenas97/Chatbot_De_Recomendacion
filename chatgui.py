@@ -3,6 +3,9 @@ from nltk.stem import WordNetLemmatizer
 lemmatizer = WordNetLemmatizer()
 import pickle
 import numpy as np
+from gtts import gTTS
+from playsound import playsound
+import speech_recognition as sr
 
 from recomendarPelicula import recomendar
 from recomendarPelicula import get_index_from_title,get_title_from_index
@@ -14,6 +17,11 @@ import random
 intents = json.loads(open('intents.json').read())
 words = pickle.load(open('words.pkl','rb'))
 classes = pickle.load(open('classes.pkl','rb'))
+
+def tts(text,lang,name_file):
+    file = gTTS(text = text, lang = lang)
+    filename = name_file
+    file.save(filename)
 
 
 def clean_up_sentence(sentence):
@@ -109,36 +117,84 @@ def send():
     if msg == 'Quit':
         base.destroy()
 
+def sendtalk():
+    r = sr.Recognizer() 
+    with sr.Microphone() as source:
+        print('Speak Anything : ')
+        audio = r.listen(source)
+        try:
+            text = r.recognize_google(audio, language='es-mx')
+            print('You said: {}'.format(text))
+        except:
+            print('Sorry could not hear')
+    
+    msg = text
+    EntryBox.delete("0.0",END)
+
+    if msg != '':
+        ChatLog.config(state=NORMAL)
+        ChatLog.insert(END, "Yo: " + msg + '\n\n')
+        ChatLog.config(foreground="#442265", font=("Verdana", 12 ))
+        res = chatbot_response(msg)
+        print(type(res))
+        if (isinstance(res, list)):
+            for i in res:
+                ChatLog.insert(END, "Arti: " + i + '\n\n')
+        else:
+            NOMBRE_ARCHIVO = "voz.mp3"
+            tts(res,"ES", NOMBRE_ARCHIVO)
+            ChatLog.insert(END, "Arti: " + res + '\n\n')
+            playsound(NOMBRE_ARCHIVO)
+        ChatLog.config(state=DISABLED)
+        ChatLog.yview(END)
+    if msg == 'Quit':
+        base.destroy()
 
 base = Tk()
 base.title("Arti Chatbot")
-base.geometry("400x500")
+base.geometry("710x800")
 base.resizable(width=FALSE, height=FALSE)
+base.configure(background='#0059b3')
+
+logo = PhotoImage(file='bot.png')
+labelLogo = Label(base, image=logo)
+labeltext = Label(base, text = "Hola soy Arti",font=("Roboto",18,'bold'),bg="#e8eaf6",)
+labelLogo.grid(row=0, column=2, columnspan=2, rowspan=2,
+               sticky=W+E+N+S, padx=5, pady=5)
 
 #Create Chat window
-ChatLog = Text(base, bd=0, bg="white", height="8", width="50", font="Arial",)
+ChatLog = Text(base, bd=0, bg="#e8eaf6", height="8", width="160", font="Roboto",)
 
 ChatLog.config(state=DISABLED)
 
 #Bind scrollbar to Chat window
-scrollbar = Scrollbar(base, command=ChatLog.yview, cursor="heart")
+scrollbar = Scrollbar(base, command=ChatLog.yview, cursor="heart",bg="#e8eaf6")
 ChatLog['yscrollcommand'] = scrollbar.set
 
 #Create Button to send message
-SendButton = Button(base, font=("Verdana",12,'bold'), text="Send", width="12", height=5,
-                    bd=0, bg="#32de97", activebackground="#3c9d9b",fg='#ffffff',
+SendButton = Button(base, font=("Roboto",12,'bold'), text="Enviar", width="12", height=3,
+                    bd=0, bg="red", activebackground="#3c9d9b",fg='#0059b3',
                     command= send )
 
+SendVoice = Button(base, font=("Roboto",12,'bold'), text="Hablar", width="12", height=3,
+                    bd=0, bg="black", activebackground="#3c9d9b",fg='#0059b3',
+                    command= sendtalk )
 #Create the box to enter message
-EntryBox = Text(base, bd=0, bg="white",width="29", height="5", font="Arial")
+EntryBox = Text(base, bd=0, bg="#e8eaf6",width="60", height="3", font="Arial")
 #EntryBox.bind("<Return>", send)
 
 
+labeltext2 = Label(base, text = "Chatbot de recomendacion de peliculas!",font=("Roboto",18,'bold'),bg="#0059b3")
+
 #Place all components on the screen
-scrollbar.place(x=376,y=6, height=386)
-ChatLog.place(x=6,y=6, height=386, width=370)
-EntryBox.place(x=128, y=401, height=90, width=265)
-SendButton.place(x=6, y=401, height=90)
+labelLogo.place(x=250,y=20,width=200, height=180)
+labeltext.place(x=300,y=220)
+scrollbar.place(x=685,y=260, height=400)
+ChatLog.place(x=6,y=260, height=400, width=690)
+EntryBox.place(x=130, y=680, height=80, width=450)
+SendButton.place(x=6, y=680, height=80)
+SendVoice.place(x=590, y=680, height=80)
+labeltext2.place(x=200,y=0)
 
 base.mainloop()
 
